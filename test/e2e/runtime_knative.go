@@ -2,13 +2,17 @@ package e2e
 
 import (
 	goctx "context"
+	"errors"
 	"testing"
 	"time"
 
+	appstacksv1beta1 "github.com/application-stacks/runtime-component-operator/pkg/apis/appstacks/v1beta1"
 	"github.com/application-stacks/runtime-component-operator/test/util"
+	servingv1alpha1 "github.com/knative/serving/pkg/apis/serving/v1alpha1"
 	framework "github.com/operator-framework/operator-sdk/pkg/test"
 	e2eutil "github.com/operator-framework/operator-sdk/pkg/test/e2eutil"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 // RuntimeKnativeTest : Create application with knative service enabled to verify feature
@@ -53,6 +57,40 @@ func RuntimeKnativeTest(t *testing.T) {
 	if err != nil {
 		util.FailureCleanup(t, f, namespace, err)
 	}
+
+	if err = disableKnativeTest(t, f, ctx); err != nil {
+		util.FailureCleanup(t, f, namespace, err)
+	}
+}
+
+func disableKnativeTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) error {
+	ns, err := ctx.GetNamespace()
+	if err != nil {
+		return err
+	}
+
+	knativeBool := false
+	const name = "example-runtime-knative"
+	target := types.NamespacedName{Name: name, Namespace: ns}
+	err = util.UpdateApplication(f, target,  func(r *appstacksv1beta1.RuntimeComponent) {
+		r.Spec.CreateKnativeService = &knativeBool
+	})
+	if err != nil {
+		return err
+	}
+
+	err = e2eutil.WaitForDeployment(t, f.KubeClient, ns, name, 1, retryInterval, timeout)
+	if err != nil {
+		return err
+	}
+
+	ksvc := servingv1alpha1.Service{}
+	err = f.Client.Get(goctx.TODO(), types.NamespacedName{Namespace: ns, Name: name}, &ksvc)
+	if err == nil {
+		return errors.New("knative service not deleted")
+	}
+
+	return nil
 }
 
 func isKnativeInstalled(t *testing.T, f *framework.Framework) bool {
