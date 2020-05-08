@@ -52,6 +52,9 @@ func RuntimeKappNavTest(t *testing.T) {
 		util.FailureCleanup(t, f, namespace, err)
 	}
 
+	if err = useExistingApplications(t, f, ctx); err != nil {
+		util.FailureCleanup(t, f, namespace, err)
+	}
 }
 
 func createKappNavApplication(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) error {
@@ -172,10 +175,12 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 	if _, ok := runtimeLabels["test-key"]; !ok {
 		return errors.New("selector labels from target application not present")
 	}
+	t.Log("target application correctly applied to the component")
 
 	if runtimeLabels["app.kubernetes.io/part-of"] != existingAppName {
 		return errors.New("part-of label not correctly set")
 	}
+	t.Log("part-of label correctly set")
 
 	// Add selector labels to verify that app was actually found
 	selectMatchLabels = map[string]string{
@@ -198,6 +203,12 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 	if _, ok := runtimeLabels["test-key1"]; !ok {
 		return errors.New("selector labels from target application in other namespace not present")
 	}
+	t.Log("target application from other namespace correctly applied to the component")
+
+	if runtimeLabels["app.kubernetes.io/part-of"] != existingAppName+"-1" {
+		return errors.New("part-of label not correctly set from external namespace application")
+	}
+	t.Log("part-of label correctly set")
 
 	return nil
 }
