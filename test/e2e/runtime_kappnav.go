@@ -170,7 +170,7 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 		return err
 	}
 
-	runtimeLabels := runtime.GetLabels()
+	runtimeLabels := runtime.Labels
 
 	if _, ok := runtimeLabels["test-key"]; !ok {
 		t.Log(runtimeLabels)
@@ -203,6 +203,15 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 		return err
 	}
 
+	runtime = &appstacksv1beta1.RuntimeComponent{}
+	err = f.Client.Get(goctx.TODO(), target, runtime)
+	if err != nil {
+		return err
+	}
+
+	runtimeLabels = runtime.Labels
+
+	// GET THE RUNTIME COMPONENT
 	if _, ok := runtimeLabels["test-key1"]; !ok {
 		t.Log(runtimeLabels)
 		return errors.New("selector labels from target application in other namespace not present")
