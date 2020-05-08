@@ -4,11 +4,12 @@ import (
 	goctx "context"
 	"errors"
 	"testing"
+	"time"
 
 	appstacksv1beta1 "github.com/application-stacks/runtime-component-operator/pkg/apis/appstacks/v1beta1"
-	applicationsv1beta1 "sigs.k8s.io/application/pkg/apis/app/v1beta1"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/types"
+	applicationsv1beta1 "sigs.k8s.io/application/pkg/apis/app/v1beta1"
 
 	"github.com/application-stacks/runtime-component-operator/test/util"
 	framework "github.com/operator-framework/operator-sdk/pkg/test"
@@ -163,6 +164,8 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 	if err != nil {
 		return err
 	}
+
+	time.Sleep(30)
 
 	runtime := &appstacksv1beta1.RuntimeComponent{}
 	err = f.Client.Get(goctx.TODO(), target, runtime)
