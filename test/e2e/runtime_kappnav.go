@@ -140,7 +140,7 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 	}
 
 	const name string = "example-runtime-kappnav"
-	const existingAppName string = "existing-app"
+	var existingAppName string = "existing-app"
 	// Add selector labels to verify that app was actually found
 	selectMatchLabels := map[string]string{
 		"test-key": "test-value",
@@ -173,6 +173,7 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 	runtimeLabels := runtime.GetLabels()
 
 	if _, ok := runtimeLabels["test-key"]; !ok {
+		t.Log(runtimeLabels)
 		return errors.New("selector labels from target application not present")
 	}
 	t.Log("target application correctly applied to the component")
@@ -187,25 +188,28 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 		"test-key1": "test-value1",
 	}
 
+	existingAppName = "existing-other-namespace"
+
 	// connect to existing application OUTSIDE namespace
-	err = util.CreateApplicationTarget(f, ctx, types.NamespacedName{Name: existingAppName+"-1", Namespace: "default"}, selectMatchLabels)
+	err = util.CreateApplicationTarget(f, ctx, types.NamespacedName{Name: existingAppName, Namespace: "default"}, selectMatchLabels)
 	if err != nil {
 		return err
 	}
 
 	err = util.UpdateApplication(f, target, func(r *appstacksv1beta1.RuntimeComponent) {
-		r.Spec.ApplicationName = existingAppName+"-1"
+		r.Spec.ApplicationName = existingAppName
 	})
 	if err != nil {
 		return err
 	}
 
 	if _, ok := runtimeLabels["test-key1"]; !ok {
+		t.Log(runtimeLabels)
 		return errors.New("selector labels from target application in other namespace not present")
 	}
 	t.Log("target application from other namespace correctly applied to the component")
 
-	if runtimeLabels["app.kubernetes.io/part-of"] != existingAppName+"-1" {
+	if runtimeLabels["app.kubernetes.io/part-of"] != existingAppName {
 		return errors.New("part-of label not correctly set from external namespace application")
 	}
 	t.Log("part-of label correctly set")
