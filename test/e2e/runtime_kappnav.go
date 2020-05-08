@@ -138,9 +138,13 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 
 	const name string = "example-runtime-kappnav"
 	const existingAppName string = "existing-app"
+	// Add selector labels to verify that app was actually found
+	selectMatchLabels := map[string]string{
+		"test-key": "test-value",
+	}
 
 	// create existing application
-	err = util.CreateApplication(t, f, ctx, types.NamespacedName{Name: existingAppName, Namespace: ns})
+	err = util.CreateApplicationTarget(f, ctx, types.NamespacedName{Name: existingAppName, Namespace: ns}, selectMatchLabels)
 	if err != nil {
 		return err
 	}
@@ -163,16 +167,37 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 		return err
 	}
 
-	if runtime.GetLabels()["app.kubernetes.io/part-of"] != existingAppName {
+	runtimeLabels := runtime.GetLabels()
+
+	if _, ok := runtimeLabels["test-key"]; !ok {
+		return errors.New("selector labels from target application not present")
+	}
+
+	if runtimeLabels["app.kubernetes.io/part-of"] != existingAppName {
 		return errors.New("part-of label not correctly set")
 	}
 
+	// Add selector labels to verify that app was actually found
+	selectMatchLabels = map[string]string{
+		"test-key1": "test-value1",
+	}
+
 	// connect to existing application OUTSIDE namespace
-	err = util.CreateApplication(t, f, ctx, types.NamespacedName{Name: existingAppName+"-1", Namespace: "default"})
+	err = util.CreateApplicationTarget(f, ctx, types.NamespacedName{Name: existingAppName+"-1", Namespace: "default"}, selectMatchLabels)
 	if err != nil {
 		return err
 	}
 
+	err = util.UpdateApplication(f, target, func(r *appstacksv1beta1.RuntimeComponent) {
+		r.Spec.ApplicationName = existingAppName+"-1"
+	})
+	if err != nil {
+		return err
+	}
+
+	if _, ok := runtimeLabels["test-key1"]; !ok {
+		return errors.New("selector labels from target application in other namespace not present")
+	}
 
 	return nil
 }
