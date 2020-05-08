@@ -314,3 +314,22 @@ func WaitForApplicationCreated(t *testing.T, f *framework.Framework, target type
 
 	return err
 }
+
+func CreateApplication(t *testing.T, f *framework.Framework, ctx *framework.TestCtx, target types.NamespacedName) error {
+	application := &applicationsv1beta1.Application{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: target.Name,
+			Namespace: target.Namespace,
+		},
+		Spec: applicationsv1beta1.ApplicationSpec{},
+	}
+	timeout := time.Second * 30
+	retryInterval := time.Second * 1
+
+	err := f.Client.Create(goctx.TODO(), application, &framework.CleanupOptions{TestContext: ctx, Timeout: timeout, RetryInterval: retryInterval})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

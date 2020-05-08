@@ -17,8 +17,8 @@ import (
 
 var appName string = "test-app"
 
-// RuntimeAutoScalingTest : More indepth testing of autoscaling
-func RuntimeKappNav(t *testing.T) {
+// RuntimeKappNavTest : Test kappnav feature set
+func RuntimeKappNavTest(t *testing.T) {
 
 	ctx, err := util.InitializeContext(t, cleanupTimeout, retryInterval)
 	if err != nil {
@@ -130,6 +130,53 @@ func updateKappNavApplications(t *testing.T, f *framework.Framework, ctx *framew
 	return nil
 }
 
+func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) error {
+	ns, err := ctx.GetNamespace()
+	if err != nil {
+		return err
+	}
+
+	const name string = "example-runtime-kappnav"
+	const existingAppName string = "existing-app"
+
+	// create existing application
+	err = util.CreateApplication(t, f, ctx, types.NamespacedName{Name: existingAppName, Namespace: ns})
+	if err != nil {
+		return err
+	}
+
+	// connect to existing application IN namespace
+	target := types.NamespacedName{Namespace: ns, Name: name}
+
+	err = util.UpdateApplication(f, target, func(r *appstacksv1beta1.RuntimeComponent) {
+		createApp := false
+		r.Spec.CreateAppDefinition = &createApp
+		r.Spec.ApplicationName = existingAppName
+	})
+	if err != nil {
+		return err
+	}
+
+	runtime := &appstacksv1beta1.RuntimeComponent{}
+	err = f.Client.Get(goctx.TODO(), target, runtime)
+	if err != nil {
+		return err
+	}
+
+	if runtime.GetLabels()["app.kubernetes.io/part-of"] != existingAppName {
+		return errors.New("part-of label not correctly set")
+	}
+
+	// connect to existing application OUTSIDE namespace
+	err = util.CreateApplication(t, f, ctx, types.NamespacedName{Name: existingAppName+"-1", Namespace: "default"})
+	if err != nil {
+		return err
+	}
+
+
+	return nil
+}
+
 func verifyKappNavLabels(t *testing.T, f *framework.Framework, target types.NamespacedName) (bool, error) {
 	dep := &appsv1.Deployment{}
 	err := f.Client.Get(goctx.TODO(), target, dep)
@@ -139,6 +186,7 @@ func verifyKappNavLabels(t *testing.T, f *framework.Framework, target types.Name
 
 	labels := dep.GetLabels()
 
+	// verify that label present, full set of annos checked by unit tests
 	if labels["kappnav.app.auto-create"] != "true" {
 		return false, nil
 	}

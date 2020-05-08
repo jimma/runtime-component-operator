@@ -56,6 +56,7 @@ func testAdvancedFeatures(t *testing.T) {
 	t.Run("RuntimeServiceMonitorTest", RuntimeServiceMonitorTest)
 	t.Run("RuntimeKnativeTest", RuntimeKnativeTest)
 	t.Run("RuntimeCertManagerTest", RuntimeCertManagerTest)
+	t.Run("RuntimeKappNavTest", RuntimeKappNavTest)
 }
 
 // Verify functionality that is tied to OCP
