@@ -165,8 +165,8 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 		return err
 	}
 
-	t.Log("sleeping for 400 seconds")
-	time.Sleep(400 * time.Second)
+	// t.Log("sleeping for 400 seconds")
+	// time.Sleep(400 * time.Second)
 
 	runtime := &appstacksv1beta1.RuntimeComponent{}
 	err = f.Client.Get(goctx.TODO(), target, runtime)
@@ -175,6 +175,7 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 	}
 
 	runtimeLabels := runtime.Labels
+	t.Log(runtime)
 
 	if _, ok := runtimeLabels["test-key"]; !ok {
 		t.Log(runtimeLabels)

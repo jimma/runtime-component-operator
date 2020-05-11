@@ -61,7 +61,7 @@ func testAdvancedFeatures(t *testing.T) {
 
 // Verify functionality that is tied to OCP
 func testOCPFeatures(t *testing.T) {
-	t.Run("RuntimeImageStreamTest", RuntimeImageStreamTest)
+	// t.Run("RuntimeImageStreamTest", RuntimeImageStreamTest)
 }
 
 // Verify functionality that is not expected to run on OCP
