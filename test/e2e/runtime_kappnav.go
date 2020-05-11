@@ -165,17 +165,14 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 		return err
 	}
 
-	// t.Log("sleeping for 400 seconds")
-	// time.Sleep(400 * time.Second)
+	t.Log("waiting 100 seconds")
+	time.Sleep(200 * time.Second)
 
 	runtime := &appstacksv1beta1.RuntimeComponent{}
 	err = f.Client.Get(goctx.TODO(), target, runtime)
 	if err != nil {
 		return err
 	}
-
-	t.Log("waiting 100 seconds")
-	time.Sleep(100 * time.Second)
 
 	runtimeLabels := runtime.Labels
 	t.Log(runtime)
@@ -212,7 +209,7 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 	}
 
 	t.Log("waiting 100 seconds")
-	time.Sleep(100 * time.Second)
+	time.Sleep(200 * time.Second)
 
 	runtime = &appstacksv1beta1.RuntimeComponent{}
 	err = f.Client.Get(goctx.TODO(), target, runtime)
