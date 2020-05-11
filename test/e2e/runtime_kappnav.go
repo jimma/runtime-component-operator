@@ -165,7 +165,8 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 		return err
 	}
 
-	time.Sleep(30)
+	t.Log("sleeping for 400 seconds")
+	time.Sleep(400 * time.Second)
 
 	runtime := &appstacksv1beta1.RuntimeComponent{}
 	err = f.Client.Get(goctx.TODO(), target, runtime)

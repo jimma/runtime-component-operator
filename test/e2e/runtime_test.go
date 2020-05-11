@@ -27,12 +27,12 @@ func TestRuntimeComponent(t *testing.T) {
 	}
 
 	// Basic tests that are runnable locally in minishift/kube
-	t.Run("RuntimePullPolicyTest", RuntimePullPolicyTest)
-	t.Run("RuntimeBasicTest", RuntimeBasicTest)
-	t.Run("RuntimeProbeTest", RuntimeProbeTest)
-	t.Run("RuntimeAutoScalingTest", RuntimeAutoScalingTest)
-	t.Run("RuntimeStorageTest", RuntimeBasicStorageTest)
-	t.Run("RuntimePersistenceTest", RuntimePersistenceTest)
+	// t.Run("RuntimePullPolicyTest", RuntimePullPolicyTest)
+	// t.Run("RuntimeBasicTest", RuntimeBasicTest)
+	// t.Run("RuntimeProbeTest", RuntimeProbeTest)
+	// t.Run("RuntimeAutoScalingTest", RuntimeAutoScalingTest)
+	// t.Run("RuntimeStorageTest", RuntimeBasicStorageTest)
+	// t.Run("RuntimePersistenceTest", RuntimePersistenceTest)
 
 	if cluster != "local" {
 		// only test non-OCP features on minikube
@@ -53,9 +53,9 @@ func TestRuntimeComponent(t *testing.T) {
 func testAdvancedFeatures(t *testing.T) {
 	// These features require a bit of configuration
 	// which makes them less ideal for quick minikube tests
-	t.Run("RuntimeServiceMonitorTest", RuntimeServiceMonitorTest)
-	t.Run("RuntimeKnativeTest", RuntimeKnativeTest)
-	t.Run("RuntimeCertManagerTest", RuntimeCertManagerTest)
+	// t.Run("RuntimeServiceMonitorTest", RuntimeServiceMonitorTest)
+	// t.Run("RuntimeKnativeTest", RuntimeKnativeTest)
+	// t.Run("RuntimeCertManagerTest", RuntimeCertManagerTest)
 	t.Run("RuntimeKappNavTest", RuntimeKappNavTest)
 }
 
