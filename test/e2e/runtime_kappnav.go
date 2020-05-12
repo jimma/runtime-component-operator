@@ -110,8 +110,8 @@ func updateKappNavApplications(t *testing.T, f *framework.Framework, ctx *framew
 	target := types.NamespacedName{Namespace: ns, Name: name}
 
 	err = util.UpdateApplication(f, target, func(r *appstacksv1beta1.RuntimeComponent) {
-		disabled := false
-		r.Spec.CreateAppDefinition = &disabled
+		appDef := false
+		r.Spec.CreateAppDefinition = &appDef
 	})
 	if err != nil {
 		return err
@@ -166,7 +166,7 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 	}
 
 	t.Log("waiting 100 seconds")
-	time.Sleep(200 * time.Second)
+	time.Sleep(5 * time.Second)
 
 	runtime := &appstacksv1beta1.RuntimeComponent{}
 	err = f.Client.Get(goctx.TODO(), target, runtime)
@@ -202,6 +202,8 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 	}
 
 	err = util.UpdateApplication(f, target, func(r *appstacksv1beta1.RuntimeComponent) {
+		appDef := false
+		r.Spec.CreateAppDefinition = &appDef
 		r.Spec.ApplicationName = existingAppName
 	})
 	if err != nil {
@@ -209,7 +211,7 @@ func useExistingApplications(t *testing.T, f *framework.Framework, ctx *framewor
 	}
 
 	t.Log("waiting 100 seconds")
-	time.Sleep(200 * time.Second)
+	time.Sleep(350 * time.Second)
 
 	runtime = &appstacksv1beta1.RuntimeComponent{}
 	err = f.Client.Get(goctx.TODO(), target, runtime)

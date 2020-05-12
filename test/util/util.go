@@ -316,10 +316,18 @@ func WaitForApplicationCreated(t *testing.T, f *framework.Framework, target type
 }
 
 func CreateApplicationTarget(f *framework.Framework, ctx *framework.TestCtx, target types.NamespacedName, l map[string]string) error {
+	ns, err := ctx.GetNamespace()
+	if err != nil {
+		return err
+	}
+
 	application := &applicationsv1beta1.Application{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: target.Name,
 			Namespace: target.Namespace,
+			Annotations: map[string]string{
+				"kappnav.component.namespaces": ns,
+			},
 		},
 		Spec: applicationsv1beta1.ApplicationSpec{
 			Selector: &metav1.LabelSelector{
@@ -330,7 +338,7 @@ func CreateApplicationTarget(f *framework.Framework, ctx *framework.TestCtx, tar
 	timeout := time.Second * 30
 	retryInterval := time.Second * 1
 
-	err := f.Client.Create(goctx.TODO(), application, &framework.CleanupOptions{TestContext: ctx, Timeout: timeout, RetryInterval: retryInterval})
+	err = f.Client.Create(goctx.TODO(), application, &framework.CleanupOptions{TestContext: ctx, Timeout: timeout, RetryInterval: retryInterval})
 	if err != nil {
 		return err
 	}
